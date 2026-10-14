@@ -1,18 +1,20 @@
-# Cortex, LAN only: docker compose -f docker-compose.yml -f docker-compose.cortex.yml up -d --build
+# Thalamus, LAN only: docker compose -f docker-compose.yml -f docker-compose.thalamus.yml up -d --build
 #
-# - web is published on cortex's LAN address only (192.168.1.161), so Tailscale peers and the
+# - web is published on thalamus's wired LAN address only (192.168.1.124, eno1), so Tailscale peers and the
 #   internet can't reach it. Docker-published ports bypass ufw, so this bind IS the boundary.
 # - api stays on 127.0.0.1:4000 (from docker-compose.yml); the browser never calls it directly,
 #   the web container proxies to it over the compose network with API_KEY attached.
 # - API_KEY and WEB_ORIGIN come from ./.env (git-ignored), set explicitly:
 #     API_KEY=<openssl rand -hex 32>
-#     WEB_ORIGIN=http://192.168.1.161:3000
+#     WEB_ORIGIN=http://192.168.1.124:3000
 # - Alpaca keys go to the api container only, from ./alpaca.env (git-ignored, chmod 600), with the
 #   trading bot's variable names: ALPACA_KEY, ALPACA_SECRET, ALPACA_PAPER=true.
+#   Use a copy of one paper bot's key; never point this at /opt/trading (the trader user's files).
+# - 192.168.1.124 is a DHCP lease: if it changes, this container won't start (board item t3).
 services:
   api:
     env_file:
       - ./alpaca.env
   web:
     ports:
-      - "192.168.1.161:3000:3000"
+      - "192.168.1.124:3000:3000"
