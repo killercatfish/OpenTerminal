@@ -4,6 +4,7 @@ import { marketRouter } from "./routes/market.js";
 import { portfolioRouter } from "./routes/portfolio.js";
 import { aiRouter } from "./routes/ai.js";
 import { alpacaRouter } from "./routes/alpaca.js";
+import { botsRouter } from "./routes/bots.js";
 import { allStats } from "./providers/registry.js";
 import { requireApiKey } from "./auth.js";
 import { rateLimit } from "./rateLimit.js";
@@ -38,6 +39,15 @@ app.use(
   requireApiKey,
   rateLimit({ windowMs: 60_000, max: 30 }),
   alpacaRouter
+);
+
+// Read-only view of every trading bot, live money included, from the bots' own
+// pages on 127.0.0.1 (see routes/bots.ts). No Alpaca keys involved.
+app.use(
+  "/api/bots",
+  requireApiKey,
+  rateLimit({ windowMs: 60_000, max: 30 }),
+  botsRouter
 );
 
 // No API key here by design (market.ts routes proxy free, keyless public data),

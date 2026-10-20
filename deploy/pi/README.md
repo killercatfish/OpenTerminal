@@ -13,6 +13,10 @@ root, and its port rules bypass ufw (Josh chose this 2026-10-20).
   `install.sh` copies that bot's two key lines into `/etc/openterminal/alpaca.env` and refuses a
   live account. The widget only reads (the API has no order routes), and it refuses outright when
   `ALPACA_PAPER=false`.
+- The **BOTS (ALL)** widget shows every bot, live money included, with no keys at all. The API
+  reads the bots' own read-only pages on the Pi (the overview on `127.0.0.1:8049`, then each bot's
+  dashboard on 8050-8059). Equity comes from Alpaca through the bots; position prices are the
+  strategy's last bar close.
 - There's no Anthropic key, so the AI panel stays off.
 
 The Pi never builds anything. The Mac builds the release, and the Pi only runs

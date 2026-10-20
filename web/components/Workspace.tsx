@@ -22,6 +22,7 @@ import InsiderWidget from "./widgets/InsiderWidget";
 import TvWidget from "./widgets/TvWidget";
 import RecapWidget from "./widgets/RecapWidget";
 import BotWidget from "./widgets/BotWidget";
+import BotsWidget from "./widgets/BotsWidget";
 import WidgetErrorBoundary from "./WidgetErrorBoundary";
 
 const Grid = WidthProvider(GridLayout);
@@ -44,6 +45,7 @@ function WidgetBody({ widget }: { widget: WidgetInstance }) {
     case "tv": return <TvWidget />;
     case "recap": return <RecapWidget />;
     case "bot": return <BotWidget />;
+    case "bots": return <BotsWidget />;
   }
 }
 
@@ -99,6 +101,7 @@ const TITLES: Record<string, string> = {
   macro: "Macro / Indexes", options: "Option Chain", portfolio: "Portfolio", ai: "AI Assistant",
   calendar: "Calendar", insider: "Insider Transactions", tv: "Live TV", recap: "Market Recap",
   bot: "Bot · Alpaca Paper",
+  bots: "Trading Bots · live + paper",
 };
 
 export default function Workspace() {
