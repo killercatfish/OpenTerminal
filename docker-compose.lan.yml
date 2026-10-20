@@ -1,4 +1,4 @@
-# LAN only, on the host it runs on (planned: tradepi, the Pi beside the trading bots):
+# LAN only, on a host that already runs Docker. (tradepi doesn't: it uses deploy/pi/ instead, no Docker.)
 #   docker compose -f docker-compose.yml -f docker-compose.lan.yml up -d --build
 #
 # - web is published on this host's LAN address only (LAN_BIND), so Tailscale peers and the

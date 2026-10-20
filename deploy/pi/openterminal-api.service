@@ -1,0 +1,57 @@
+# OpenTerminal's API on a Pi, as its own user "oterm". Listens on 127.0.0.1:4000 only; the web
+# service is its only caller. It fetches market data from the internet (Yahoo, SEC, RSS, Alpaca's
+# paper API) but is fenced off from the home LAN and Tailscale. Steps: deploy/pi/README.md.
+[Unit]
+Description=OpenTerminal API (localhost:4000)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=oterm
+Group=oterm
+WorkingDirectory=/opt/openterminal/server
+ExecStart=/usr/bin/node /opt/openterminal/server/dist/index.js
+Restart=always
+RestartSec=10
+UMask=0077
+Environment=NODE_ENV=production
+Environment=API_HOST=127.0.0.1
+Environment=API_PORT=4000
+Environment=DATA_DIR=/var/lib/openterminal
+Environment=ALPACA_ENV_FILE=/etc/openterminal/alpaca.env
+# API_KEY (shared with the web service) and WEB_ORIGIN, written by install.sh.
+EnvironmentFile=/etc/openterminal/openterminal.env
+StateDirectory=openterminal
+StateDirectoryMode=0700
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# Internet yes, home network no: it can't reach the bots' dashboards, cortex, or anything else here.
+IPAddressDeny=10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 169.254.0.0/16
+# A guest on the bots' host: capped so it never crowds them.
+MemoryMax=384M
+CPUQuota=50%
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,54 @@
+# OpenTerminal's web app on a Pi, as user "oterm". Listens on the Pi's LAN address only (LAN_BIND
+# in /etc/openterminal/openterminal.env), so Tailscale peers can't reach it, and talks only to the
+# LAN and to the API on localhost. Steps: deploy/pi/README.md.
+[Unit]
+Description=OpenTerminal web (LAN :3000)
+After=network-online.target openterminal-api.service
+Wants=network-online.target openterminal-api.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=oterm
+Group=oterm
+WorkingDirectory=/opt/openterminal/web
+# Next's standalone server binds to $HOSTNAME.
+ExecStart=/bin/sh -c 'HOSTNAME="$LAN_BIND" exec /usr/bin/node /opt/openterminal/web/server.js'
+Restart=always
+RestartSec=10
+UMask=0077
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=API_URL=http://127.0.0.1:4000
+Environment=NEXT_TELEMETRY_DISABLED=1
+EnvironmentFile=/etc/openterminal/openterminal.env
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# Only the home LAN (browsers) and localhost (the API). Never the internet.
+IPAddressDeny=any
+IPAddressAllow=localhost 192.168.1.0/24
+MemoryMax=384M
+CPUQuota=50%
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
